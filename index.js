@@ -32,6 +32,8 @@ usersRef.set({
 */
 
 const firestore = firebase.firestore();
+var settings = { timestampsInSnapshots: true };
+firestore.settings(settings);
 
 var dataset = [
   ['Bread', 'Butter', 'Jam'],
@@ -108,16 +110,15 @@ app.get('/recommend/:product', async (req, res) => {
 });
 
 app.post('/transaction', async (req, res) => {
+  const createdAt = new Date();
   const productsBody = req.body.products;
-  const bill = { ...productsBody };
+  const bill = { products: [...productsBody], createdAt: createdAt };
   await firestore.collection('bills').add(bill);
   let products = productsBody.map(p => p.name)
   console.log(products);
-  await firestore.collection('transaction').add({products});
+  await firestore.collection('transaction').add({products, createdAt: createdAt});
   dataset.push(products);
   runApriori();
-  // console.log(dataset);
-  // console.log(recommendedItems);
   res.status(201).end();
 });
 
@@ -133,6 +134,21 @@ app.get('/transaction/all', async (req, res) => {
   });
 
   res.status(200).json(transactions);
+});
+
+app.get('/bills/all', async (req, res) => {
+  const snapshot = await firestore.collection('bills').get();
+
+  let bills = [];
+  snapshot.forEach((doc) => {
+    let id = doc.id;
+    let createdAt = doc.createdAt;
+    let data = doc.data();
+
+    bills.push({ id, createdAt, ...data });
+  });
+
+  res.status(200).json(bills);
 });
 
 // const PORT = process.env.PORT || 5000;
