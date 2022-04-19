@@ -121,7 +121,7 @@ app.get('/', async (req, res) => {
     <script>
       var data = [];
 
-      fetch('http://localhost:8080/bills/all')
+      fetch('/bills/all')
       .then(res => res.json())
       .then(d => {
         data = d;
