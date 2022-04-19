@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <title>Smart Trolley</title>
+</head>
+<body>
+  <div class="container">
+    <canvas id="myChart" style="width:100%;max-width:800px"></canvas>
+  </div>
+  <script>
+    var data = [];
+
+    fetch('http://localhost:8080/bills/all')
+    .then(res => res.json())
+    .then(d => {
+      data = d;
+      return d;
+    })
+    .then(d => plotGraph())
+    .catch(err => console.log(err));
+
+
+
+    var pFreq = {};
+    var xValues = [];
+    var yValues = [];
+    var barColors = ["red", "green","blue","orange","brown"];
+
+    function plotGraph() {
+      for(let i=0; i<data.length; i++) {
+        let bill = data[i];
+        // console.log(bill.products);
+        for (let j=0; j<bill.products.length; j++) {
+          let name = bill.products[j].name;
+          let qty = bill.products[j].quantity;
+          // console.log(name, qty);
+          // console.log(pFreq[name]);
+          if (pFreq[name] == undefined) {
+            pFreq[name] = qty;
+          } else {
+            pFreq[name] += qty;
+          }
+        }
+      }
+
+      for (const key in pFreq) {
+        xValues.push(key);
+        yValues.push(pFreq[key])
+      }
+
+
+
+      new Chart("myChart", {
+        type: "bar",
+        data: {
+          labels: xValues,
+          datasets: [{
+            backgroundColor: barColors,
+            data: yValues
+          }]
+        },
+        options: {
+          legend: {display: false},
+          title: {
+            display: true,
+            text: "Frequently bought products"
+          },
+          scales: {
+            yAxes: [{
+              display: true,
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
