@@ -46,7 +46,27 @@ var dataset = [
   ['Bread', 'Butter', 'Apple'],
   ['Apple', 'Milk', 'Bread'],
   ['Apple', 'Bread', 'Milk'],
-  ['Bread', 'Butter', 'Milk']
+  ['Bread', 'Butter', 'Milk'],
+  ['Apple', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Milk', 'Biscuit', 'Vix Inhaler', 'Volini Spray'],
+  ['Apple', 'Biscuit', 'Vix Inhaler', 'Volini Spray'],
+  ['Bread', 'Butter', 'Jam', 'Volini Spray'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler'],
+  ['Bread', 'Butter', 'Volini Spray', 'Vix Inhaler']
 ];
 
 var recommendedItems =  {};
