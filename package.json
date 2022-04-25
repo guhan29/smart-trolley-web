@@ -14,7 +14,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "firebase-admin": "^10.0.2",
-    "node-apriori": "^1.0.0"
+    "node-apriori": "^1.0.0",
+    "stripe": "^8.219.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

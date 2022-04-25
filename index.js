@@ -9,7 +9,10 @@ const aprioriLib = require("node-apriori/dist/apriori");
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const e = require('express');
+const stripe = require("stripe")("sk_test_51KsOL5SJf20SChmkao7zZJ7XurGulNPK8mJULF3uPpArG4DXKgtZ1Vwi4KK0ofJ7ZZyqRSRG8oTYRhoM6UlkSmBE001IA8u2o3");
 app.use(express.json());
+app.use(express.static('public'));
 app.use(cors());
 /*
 const db = firebase.database();
@@ -98,102 +101,35 @@ async function getAllFromStore() {
 
 getAllFromStore();
 
-app.get('/', async (req, res) => {
-  let sendHtm = `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link
-        rel="stylesheet"
-        href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-      />
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-    <title>Smart Trolley</title>
-  </head>
-  <body>
-    <div class="container">
-      <canvas id="myChart" style="width:100%;max-width:800px"></canvas>
-    </div>
-    <script>
-      var data = [];
-
-      fetch('/bills/all')
-      .then(res => res.json())
-      .then(d => {
-        data = d;
-        return d;
-      })
-      .then(d => plotGraph())
-      .catch(err => console.log(err));
-
-
-
-      var pFreq = {};
-      var xValues = [];
-      var yValues = [];
-      var barColors = ["red", "green","blue","orange","brown"];
-
-      function plotGraph() {
-        for(let i=0; i<data.length; i++) {
-          let bill = data[i];
-          // console.log(bill.products);
-          for (let j=0; j<bill.products.length; j++) {
-            let name = bill.products[j].name;
-            let qty = bill.products[j].quantity;
-            // console.log(name, qty);
-            // console.log(pFreq[name]);
-            if (pFreq[name] == undefined) {
-              pFreq[name] = qty;
-            } else {
-              pFreq[name] += qty;
-            }
-          }
-        }
-
-        for (const key in pFreq) {
-          xValues.push(key);
-          yValues.push(pFreq[key])
-        }
-
-
-
-        new Chart("myChart", {
-          type: "bar",
-          data: {
-            labels: xValues,
-            datasets: [{
-              backgroundColor: barColors,
-              data: yValues
-            }]
-          },
-          options: {
-            legend: {display: false},
-            title: {
-              display: true,
-              text: "Frequently bought products"
+app.post('/checkout-products', async (req, res) => {
+  const products = req.body;
+  console.log(products);
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: req.body.products.map(item => {
+        return {
+          price_data: {
+            currency: "INR",
+            product_data: {
+              name: item.name,
             },
-            scales: {
-              yAxes: [{
-                display: true,
-                ticks: {
-                  beginAtZero: true
-                }
-              }]
-            }
-          }
-        });
-      }
-    </script>
-  </body>
-  </html>
-  `;
+            unit_amount: item.price*100,
+          },
+          quantity: item.quantity,
+        }
+      }),
+      // TODO: Change here
+      success_url: `http://iot-smart-trolley-347413.de.r.appspot.com/success.html`,
+      cancel_url: `http://iot-smart-trolley-347413.de.r.appspot.com/cancel.html`,
+    })
+    res.json({ url: session.url });
 
-  res.send(sendHtm);
-});
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
 
 app.get('/recommend/:product', async (req, res) => {
   let product = req.params.product;
