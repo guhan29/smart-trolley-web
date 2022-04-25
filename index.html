@@ -44,7 +44,7 @@
             </tr>
 
             <tr>
-              <th colspan="5">Amount in words: </th>
+              <th colspan="5">Amount in words:</th>
             </tr>
 
             <tr>
@@ -57,68 +57,107 @@
             </tr>
           </tbody>
         </table>
+
+        <button id="ckt-btn" class="btn btn-primary">Pay</button>
       </div>
     </div>
 
     <script>
       /* eslint-disable eqeqeq */
 
-      const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen ']
-      const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+      var cart = null;
 
-      const regex = /^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/
+      const a = [
+        '',
+        'one ',
+        'two ',
+        'three ',
+        'four ',
+        'five ',
+        'six ',
+        'seven ',
+        'eight ',
+        'nine ',
+        'ten ',
+        'eleven ',
+        'twelve ',
+        'thirteen ',
+        'fourteen ',
+        'fifteen ',
+        'sixteen ',
+        'seventeen ',
+        'eighteen ',
+        'nineteen ',
+      ];
+      const b = [
+        '',
+        '',
+        'twenty',
+        'thirty',
+        'forty',
+        'fifty',
+        'sixty',
+        'seventy',
+        'eighty',
+        'ninety',
+      ];
 
-      const getLT20 = (n) => a[Number(n)]
-      const getGT20 = (n) => b[n[0]] + ' ' + a[n[1]]
-      function numWords (input) {
-        const num = Number(input)
-        if (isNaN(num)) return ''
-        if (num === 0) return 'zero'
+      const regex = /^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/;
 
-        const numStr = num.toString()
+      const getLT20 = (n) => a[Number(n)];
+      const getGT20 = (n) => b[n[0]] + ' ' + a[n[1]];
+      function numWords(input) {
+        const num = Number(input);
+        if (isNaN(num)) return '';
+        if (num === 0) return 'zero';
+
+        const numStr = num.toString();
         if (numStr.length > 9) {
-          throw new Error('overflow') // Does not support converting more than 9 digits yet
+          throw new Error('overflow'); // Does not support converting more than 9 digits yet
         }
 
-        const [, n1, n2, n3, n4, n5] = ('000000000' + numStr).substr(-9).match(regex) // left pad zeros
+        const [, n1, n2, n3, n4, n5] = ('000000000' + numStr)
+          .substr(-9)
+          .match(regex); // left pad zeros
 
-        let str = ''
-        str += n1 != 0 ? (getLT20(n1) || getGT20(n1)) + 'crore ' : ''
-        str += n2 != 0 ? (getLT20(n2) || getGT20(n2)) + 'lakh ' : ''
-        str += n3 != 0 ? (getLT20(n3) || getGT20(n3)) + 'thousand ' : ''
-        str += n4 != 0 ? getLT20(n4) + 'hundred ' : ''
-        str += n5 != 0 && str != '' ? 'and ' : ''
-        str += n5 != 0 ? (getLT20(n5) || getGT20(n5)) : ''
+        let str = '';
+        str += n1 != 0 ? (getLT20(n1) || getGT20(n1)) + 'crore ' : '';
+        str += n2 != 0 ? (getLT20(n2) || getGT20(n2)) + 'lakh ' : '';
+        str += n3 != 0 ? (getLT20(n3) || getGT20(n3)) + 'thousand ' : '';
+        str += n4 != 0 ? getLT20(n4) + 'hundred ' : '';
+        str += n5 != 0 && str != '' ? 'and ' : '';
+        str += n5 != 0 ? getLT20(n5) || getGT20(n5) : '';
 
-        return str.trim()
+        return str.trim();
       }
 
-      setInterval(function ( ) {
+      setInterval(function () {
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+        xhttp.onreadystatechange = function () {
           if (this.readyState == 4 && this.status == 200) {
             let res = JSON.parse(this.responseText);
             console.log(res);
+            cart = [ ...res.products ];
 
             if (res.products != null) {
               let totalAmount = 0.0;
               let tbody = '';
               let totalQty = 0;
 
-              for (let i=0; i<res.products.length; i++) {
+              for (let i = 0; i < res.products.length; i++) {
                 let qty = res.products[i].quantity;
                 totalQty += qty;
                 let pname = res.products[i].name;
                 let price = res.products[i].price;
 
-                totalAmount += qty*price;
+                totalAmount += qty * price;
 
                 tbody += `<tr>
-                <th scope="row">${i+1}</th>
+                <th scope="row">${i + 1}</th>
                 <td>${pname}</td>
                 <td class="text-center">${qty}</td>
                 <td class="text-right">${price}</td>
-                <th scope="row" class="text-right">${qty*price}</th>
+                <th scope="row" class="text-right">${qty * price}</th>
               </tr>`;
               }
 
@@ -158,7 +197,9 @@
               <th scope="row" class="text-right">${totalAmount}</th>
             </tr>
               <tr>
-                <th colspan="5">Amount in words: ${numWords(totalAmount).toLocaleUpperCase() + " Only"}</th>
+                <th colspan="5">Amount in words: ${
+                  numWords(totalAmount).toLocaleUpperCase() + ' Only'
+                }</th>
               </tr>`;
 
               let tfoot = `<tr>
@@ -170,15 +211,38 @@
                 </td>
               </tr>`;
 
-              $("tbody").html(thead + tbody + amtInWords + tfoot);
+              $('tbody').html(thead + tbody + amtInWords + tfoot);
             }
           }
         };
-        xhttp.open("GET", "/bill-data", true);
+        xhttp.open('GET', '/bill-data', true);
         // xhttp.open("GET", "http://192.168.43.202/bill-data", true);
         xhttp.send();
       }, 5000);
 
+      $('#ckt-btn').click(function () {
+        if (cart != null) {
+          fetch('http://iot-smart-trolley-347413.de.r.appspot.com/checkout-products', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              products: [
+                ...cart
+              ],
+            }),
+          })
+            .then((res) => {
+              if (res.ok) return res.json();
+              return res.json().then((json) => Promise.reject(json));
+            })
+            .then(({ url }) => {
+              window.location = url;
+            })
+            .catch((err) => console.log(err));
+        }
+      });
     </script>
   </body>
 </html>
